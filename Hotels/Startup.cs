@@ -1,5 +1,8 @@
+using Hotels.Configuration;
+using Hotels.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,19 +22,25 @@ namespace Hotels
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddDbContext<DatabaseContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("SqlConnection"))
+            );
 
-            services.AddCors(co => {
-                co.AddPolicy("CorsPolicy", builder =>
+            services.AddCors(options => {
+                options.AddPolicy("CorsPolicy", builder =>
                     builder.AllowAnyOrigin()
                     .AllowAnyMethod()
                     .AllowAnyHeader());
             });
 
-            services.AddSwaggerGen(c =>
+            services.AddAutoMapper(typeof(MapperInitializer));
+
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Hotels", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Hotels", Version = "v1" });
             });
+
+            services.AddControllers();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
