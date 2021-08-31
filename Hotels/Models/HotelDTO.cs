@@ -22,7 +22,7 @@ namespace Hotels.Models
         public string Name { get; set; }
 
         [Required]
-        [StringLength(maximumLength: 200, ErrorMessage = "Addres Is Too Long")]
+        [StringLength(maximumLength: 200, ErrorMessage = "Address Is Too Long")]
         public string Address { get; set; }
 
         [Required]
