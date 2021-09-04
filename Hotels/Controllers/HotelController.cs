@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using Hotels.IRepository;
 using Hotels.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Hotels.Controllers
@@ -31,6 +31,7 @@ namespace Hotels.Controllers
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize]
         public async Task<IActionResult> GetHotel(int id)
         {
             try
@@ -54,7 +55,7 @@ namespace Hotels.Controllers
             try
             {
                 var hotels = await _unitOfWork.Hotels.GetAll();
-                var result = _mapper.Map<HotelDTO>(hotels);
+                var result = _mapper.Map<IList<HotelDTO>>(hotels);
                 return Ok(result);
             }
             catch(Exception ex)

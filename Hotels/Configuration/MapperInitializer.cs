@@ -1,10 +1,6 @@
 ﻿using AutoMapper;
 using Hotels.Data;
 using Hotels.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Hotels.Configuration
 {
@@ -16,6 +12,7 @@ namespace Hotels.Configuration
             CreateMap<Country, CreateCountryDTO>().ReverseMap();
             CreateMap<Hotel, HotelDTO>().ReverseMap();
             CreateMap<Hotel, CreateHotelDTO>().ReverseMap();
+            CreateMap<ApiUser, UserDTO>().ReverseMap();
         }
     }
 }
