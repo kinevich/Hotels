@@ -22,7 +22,7 @@ namespace Hotels.Repository
 
         public async Task Delete(int id)
         {
-            var entity = await _db.FindAsync();
+            var entity = await _db.FindAsync(id);
             _db.Remove(entity);
         }
 
