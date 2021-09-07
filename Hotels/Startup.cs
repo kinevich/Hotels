@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using Hotels.Configuration;
 using Hotels.Data;
 using Hotels.IRepository;
@@ -5,6 +6,8 @@ using Hotels.Repository;
 using Hotels.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,11 +32,19 @@ namespace Hotels
                 options.UseSqlServer(Configuration.GetConnectionString("SqlConnection"))
             );
 
+            services.AddMemoryCache();
+
+            services.ConfigureRateLimiting();
+            services.AddHttpContextAccessor();
+
+            services.ConfigureHttpCacheHeaders();
+
             services.AddAuthentication();
             services.ConfigureIdentity();
             services.ConfigureJWT(Configuration);
 
-            services.AddCors(options => {
+            services.AddCors(options =>
+            {
                 options.AddPolicy("CorsPolicy", builder =>
                     builder.AllowAnyOrigin()
                     .AllowAnyMethod()
@@ -50,9 +61,16 @@ namespace Hotels
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "Hotels", Version = "v1" });
             });
 
-            services.AddControllers().AddNewtonsoftJson(options =>
-                options.SerializerSettings.ReferenceLoopHandling =
-                    Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddControllers(config => 
+                config.CacheProfiles.Add("120SecondsDuration", new CacheProfile 
+                {
+                    Duration = 120
+                }))
+            .AddNewtonsoftJson(options =>
+            options.SerializerSettings.ReferenceLoopHandling =
+            Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+            services.ConfigureApiVersioning();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -65,9 +83,15 @@ namespace Hotels
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Hotels v1"));
 
+            app.ConfigureExceptionHandler();
+
             app.UseHttpsRedirection();
 
             app.UseCors("AllowAll");
+
+            app.UseResponseCaching();
+            app.UseHttpCacheHeaders();
+            app.UseIpRateLimiting();
 
             app.UseRouting();
 
