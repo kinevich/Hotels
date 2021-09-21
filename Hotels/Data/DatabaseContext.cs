@@ -8,7 +8,7 @@ namespace Hotels.Data
     {
         public DatabaseContext(DbContextOptions options) : base(options)
         {
-
+            Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
